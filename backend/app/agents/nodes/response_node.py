@@ -18,6 +18,9 @@ from app.models.chat import UserIntent
 logger = get_logger("response_node")
 
 
+# LLM 上下文窗口内保留的对话历史条数上限
+MAX_CONTEXT_MESSAGES = 50
+
 SALES_RESPONSE_PROMPT = """你是一位专业的丰田汽车销售顾问，精通广汽丰田、一汽丰田、进口丰田全系车型。
 
 【回复原则】
@@ -112,10 +115,10 @@ async def sales_response_node(state: SalesState) -> SalesState:
         
         messages = state.get("messages", [])
         user_message = ""
-        # 提取最近 6 条对话历史，让 LLM 理解上下文
+        # 提取最近 N 条对话历史，让 LLM 理解上下文
         recent_history = []
         if messages and len(messages) > 0:
-            for m in messages[-6:]:
+            for m in messages[-MAX_CONTEXT_MESSAGES:]:
                 role = "用户"
                 if hasattr(m, 'type'):
                     role = "用户" if m.type == 'human' else "助手"
