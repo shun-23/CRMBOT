@@ -1,0 +1,14 @@
+{
+  "env": {
+    "ANTHROPIC_BASE_URL": "https://api.deepseek.com/anthropic",
+    "ANTHROPIC_MODEL": "deepseek-v4-pro"
+  },
+  "skills": [
+    "skill-based-architecture",
+    "project-architect",
+    "frontend-toolkit",
+    "oop-architect",
+    "web-designer",
+    "awesome-skills"
+  ]
+}
