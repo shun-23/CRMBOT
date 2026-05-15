@@ -32,3 +32,6 @@ backend/data/vector_store/
 # OS
 .DS_Store
 Thumbs.db
+docs/大创/
+docs/ROADMAP.md
+docs/CRMBot_答辩提纲.md
