@@ -32,6 +32,8 @@ SALES_RESPONSE_PROMPT = """你是一位专业的丰田汽车销售顾问，精�
 【严禁】
 - ❌ 不使用重复多余的修辞
 - ❌ 不超过300字（报价单生成回复除外）
+- ❌ 不要在回复中包含任何下载链接或文件路径（前端有下载按钮，不需要重复）
+- ❌ 当生成了报价单/方案书后，只需说"这是您的报价单，点击下方按钮即可下载"，不要贴链接
 
 【预约服务特殊规则】
 - 当客户想预约线下服务，先问清楚要预约什么：购车还是售后
@@ -44,7 +46,8 @@ SALES_RESPONSE_PROMPT = """你是一位专业的丰田汽车销售顾问，精�
 def _get_default_reply(intent: UserIntent = None) -> str:
     """获取默认回复（兜底）"""
     intent_replies = {
-        UserIntent.QUOTE_GENERATION: "报价单已生成，请在页面查看下载。如需修改请告诉我。",
+        UserIntent.QUOTE_GENERATION: "这是您的报价单，点击下方按钮即可下载。",
+        UserIntent.DOCUMENT_REQUEST: "已为您生成文档，点击下载即可查看。",
         UserIntent.PROPOSAL_CREATION: "方案已生成，如需调整请告诉我。",
         UserIntent.CONTRACT_DRAFTING: "合同草案已准备就绪，请审阅。",
         UserIntent.PRODUCT_INQUIRY: "您好，我是丰田汽车顾问，专注广汽丰田/一汽丰田/进口丰田全系。想了解哪款车的配置和价格？",
@@ -163,6 +166,14 @@ async def sales_response_node(state: SalesState) -> SalesState:
         ])
         
         reply = response.content if hasattr(response, 'content') else str(response)
+        
+        # 当有生成文档时，移除LLM回复中的URL（前端按钮已处理下载）
+        if generated_docs and len(generated_docs) > 0:
+            import re as _re
+            reply = _re.sub(r'https?://\S+', '', reply)
+            reply = _re.sub(r'下载链接[：:]\s*\n?', '', reply)
+            reply = _re.sub(r'可直接在浏览器打开下载[，,。.]?', '', reply)
+            reply = _re.sub(r'\n{3,}', '\n\n', reply).strip()
         
         suggested_actions_map = {
             UserIntent.PRODUCT_INQUIRY: ["获取报价", "了解详情"],
