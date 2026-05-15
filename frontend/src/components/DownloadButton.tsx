@@ -31,7 +31,7 @@ export default function DownloadButton({ filename, filePath }: Props) {
     if (downloading) return
     setDownloading(true)
     try {
-      const url = filePath || `/api/v1/docs/documents/${encodeURIComponent(filename)}`
+      const url = `/api/v1/docs/documents/${encodeURIComponent(filename)}`
       const link = document.createElement('a')
       link.href = url; link.download = filename
       document.body.appendChild(link); link.click(); document.body.removeChild(link)
