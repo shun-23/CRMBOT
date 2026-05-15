@@ -18,6 +18,8 @@ from app.models.chat import (
     ChatRequest,
     ChatResponse,
     ChatMessage,
+    DocumentInfo,
+    DocumentType,
     MessageRole,
     UserIntent,
 )
@@ -105,11 +107,26 @@ async def chat(
         intent = final_state.get("intent_analysis")
         intent_value = intent.intent if intent else UserIntent.UNKNOWN
         
+        # 确保文档列表格式正确（LangGraph流式处理后可能是dict）
+        raw_docs = final_state.get("generated_documents", [])
+        docs = []
+        for d in raw_docs if isinstance(raw_docs, list) else []:
+            if isinstance(d, dict):
+                docs.append(DocumentInfo(
+                    doc_type=DocumentType(d.get("doc_type", d.get("type", "xlsx"))),
+                    file_name=d.get("file_name", d.get("filename", "文档.xlsx")),
+                    file_path=d.get("file_path", d.get("path", "")),
+                ))
+            elif hasattr(d, 'file_name'):
+                docs.append(d)
+        
+        logger.info(f"[Session: {actual_session_id}] 文档数: {len(docs)}")
+        
         response = ChatResponse(
             session_id=actual_session_id,
             reply=final_state.get("sales_response", "抱歉，我没有理解您的问题。"),
             intent=intent_value,
-            documents=final_state.get("generated_documents", []),
+            documents=docs,
             suggested_actions=final_state.get("suggested_actions", []),
             metadata={
                 "knowledge_results_count": len(final_state.get("knowledge_results", [])),
