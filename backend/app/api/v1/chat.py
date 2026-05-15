@@ -116,9 +116,15 @@ async def chat(
                 docs.append(DocumentInfo(
                     doc_type=DocumentType(d.get("doc_type", d.get("type", "xlsx"))),
                     file_name=fn,
-                    file_path=f"/api/v1/docs/documents/{fn}",
+                    file_path=f"/api/v1/documents/{fn}",
                 ))
             elif hasattr(d, 'file_name'):
+                # 强制替换路径为API端点
+                d = DocumentInfo(
+                    doc_type=getattr(d, 'doc_type', DocumentType.XLSX),
+                    file_name=d.file_name,
+                    file_path=f"/api/v1/documents/{d.file_name}",
+                )
                 docs.append(d)
         
         logger.info(f"[Session: {actual_session_id}] 文档数: {len(docs)}")
