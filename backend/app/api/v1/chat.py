@@ -112,10 +112,11 @@ async def chat(
         docs = []
         for d in raw_docs if isinstance(raw_docs, list) else []:
             if isinstance(d, dict):
+                fn = d.get("file_name", d.get("filename", "文档.xlsx"))
                 docs.append(DocumentInfo(
                     doc_type=DocumentType(d.get("doc_type", d.get("type", "xlsx"))),
-                    file_name=d.get("file_name", d.get("filename", "文档.xlsx")),
-                    file_path=d.get("file_path", d.get("path", "")),
+                    file_name=fn,
+                    file_path=f"/api/v1/docs/documents/{fn}",
                 ))
             elif hasattr(d, 'file_name'):
                 docs.append(d)
