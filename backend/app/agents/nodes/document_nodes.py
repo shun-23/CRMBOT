@@ -895,14 +895,10 @@ async def generate_document_node(state: SalesState) -> SalesState:
             "doc_type": getattr(doc_result, 'doc_type', DocumentType.DOCX).value if hasattr(getattr(doc_result, 'doc_type', ''), 'value') else str(getattr(doc_result, 'doc_type', 'unknown')),
         }
         
-        # ═══ 文件名闭环：reply 必须包含完整文件名 ═══
-        doc_type_name = "Excel 报价单" if intent == UserIntent.QUOTE_GENERATION else "文档"
-        download_url = f"/api/v1/docs/documents/{file_name}"
+        # ═══ 文件名闭环：简洁回复，前端按钮处理下载 ═══
+        doc_type_name = "报价单" if intent == UserIntent.QUOTE_GENERATION else "文档"
         state["sales_response"] = (
-            f"✅ 已为您生成 {doc_type_name}：{file_name}\n\n"
-            f"报价包含详细的产品明细、单价、数量及自动计算的总金额。\n"
-            f"下载链接：http://localhost:8000{download_url}\n"
-            f"可直接在浏览器打开下载，如需修改请随时告诉我。"
+            f"这是您的{doc_type_name}，点击下方按钮即可下载。"
         )
         state["suggested_actions"] = ["修改报价内容", "生成其他格式", "发送给客户"]
         
@@ -918,8 +914,7 @@ async def generate_document_node(state: SalesState) -> SalesState:
             state["generated_documents"].append(fallback_result)
             download_url = f"/api/v1/docs/documents/{fallback_result.file_name}"
             state["sales_response"] = (
-                f"⚠️ 已为您生成默认报价单：{fallback_result.file_name}\n\n"
-                f"下载链接：http://localhost:8000{download_url}\n"
+                f"⚠️ 已为您生成默认报价单，点击下方按钮即可下载。\n"
                 f"如需调整请告诉我具体需求。"
             )
         except Exception as fallback_error:
