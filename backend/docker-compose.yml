@@ -1,0 +1,75 @@
+# CRMBOT 服务编排
+# 包含：Backend API + MySQL + Ollama
+version: "3.8"
+
+services:
+  # ========== 后端 API 服务 ==========
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: crmbot-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"       # HTTP API
+      - "8001:8001"       # WebSocket（预留）
+    environment:
+      - DEBUG=false
+      - HOST=0.0.0.0
+      - PORT=8000
+      - DATABASE_URL=mysql+aiomysql://crmbot:crmbot123@mysql:3306/crmbot
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_BASE_URL=${OPENAI_BASE_URL:-https://api.deepseek.com/v1}
+      - DEFAULT_MODEL=${DEFAULT_MODEL:-deepseek-v4-pro}
+      - EMBEDDING_MODEL=${EMBEDDING_MODEL:-bge-m3}
+    volumes:
+      - ./data:/app/data           # 知识库 + 模板 + 图片
+      - ./output:/app/output       # 生成文档输出
+      - ./.env:/app/.env:ro        # 环境变量
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - crmbot-net
+
+  # ========== MySQL 数据库 ==========
+  mysql:
+    image: mysql:8.0
+    container_name: crmbot-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: crmbot_root_123
+      MYSQL_DATABASE: crmbot
+      MYSQL_USER: crmbot
+      MYSQL_PASSWORD: crmbot123
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - crmbot-net
+
+  # ========== Ollama 本地模型服务 ==========
+  ollama:
+    image: ollama/ollama:latest
+    container_name: crmbot-ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    networks:
+      - crmbot-net
+
+volumes:
+  mysql-data:
+  ollama-data:
+
+networks:
+  crmbot-net:
+    driver: bridge
