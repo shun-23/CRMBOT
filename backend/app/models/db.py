@@ -30,16 +30,21 @@ if settings.database_url:
     elif db_url.startswith("mysql://"):
         db_url = db_url.replace("mysql://", "mysql+aiomysql://", 1)
 
-    engine = create_async_engine(
-        db_url,
-        echo=settings.debug,
-        pool_pre_ping=True,
-        pool_size=10,
-        max_overflow=20,
-    )
-    async_session_factory = async_sessionmaker(
-        engine, class_=AsyncSession, expire_on_commit=False
-    )
+    try:
+        engine = create_async_engine(
+            db_url,
+            echo=settings.debug,
+            pool_pre_ping=True,
+            pool_size=10,
+            max_overflow=20,
+        )
+        async_session_factory = async_sessionmaker(
+            engine, class_=AsyncSession, expire_on_commit=False
+        )
+    except Exception:
+        # 数据库驱动未安装时，引擎不创建，服务降级为无数据库模式
+        engine = None
+        async_session_factory = None
 
 
 async def get_db() -> AsyncSession:
