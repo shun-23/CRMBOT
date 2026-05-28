@@ -1,35 +1,40 @@
 """
-数据模型模块 - API 请求/响应的数据结构定义
+数据模型统一导出
+
+包含：
+- Pydantic 模型（API 请求/响应）
+- SQLAlchemy 模型（数据库持久化）
 """
 
+# Pydantic 模型（API 层）
 from app.models.chat import (
-    AnalysisParams,
     ChatMessage,
     ChatRequest,
     ChatResponse,
-    ContractParams,
     DocumentInfo,
     DocumentType,
     IntentAnalysisResult,
     MessageRole,
-    PresentationParams,
-    ProposalParams,
-    QuoteParams,
     UserIntent,
+    QuoteParams,
+    ProposalParams,
+    ContractParams,
+    AnalysisParams,
+    PresentationParams,
 )
 
+# SQLAlchemy 模型（数据库层）
+from app.models.user import User
+from app.models.conversation import Conversation
+from app.models.config import SystemConfig
+
 __all__ = [
-    "AnalysisParams",
-    "ChatMessage",
-    "ChatRequest",
-    "ChatResponse",
-    "ContractParams",
-    "DocumentInfo",
-    "DocumentType",
-    "IntentAnalysisResult",
-    "MessageRole",
-    "PresentationParams",
-    "ProposalParams",
-    "QuoteParams",
-    "UserIntent",
+    # Pydantic
+    "ChatMessage", "ChatRequest", "ChatResponse",
+    "DocumentInfo", "DocumentType", "IntentAnalysisResult",
+    "MessageRole", "UserIntent",
+    "QuoteParams", "ProposalParams", "ContractParams",
+    "AnalysisParams", "PresentationParams",
+    # SQLAlchemy
+    "User", "Conversation", "SystemConfig",
 ]
