@@ -37,7 +37,8 @@ reportlab>=4.0.0        # PDF 生成
 psycopg[binary]>=3.1.0      # PostgreSQL 异步驱动
 psycopg-pool>=3.1.0         # PostgreSQL 连接池
 # redis>=5.0.0              # 会话缓存（预留）
-# sqlalchemy>=2.0.0         # ORM（预留）
+sqlalchemy>=2.0.0           # ORM
+aiomysql>=0.2.0             # MySQL 异步驱动
 
 # ========== 工具库 ==========
 aiohttp>=3.9.0
