@@ -10,7 +10,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.v1 import chat_router, documents_router
+from app.api.v1 import chat_router, documents_router, images_router
 from app.core.config import settings
 from app.core.logging import get_logger
 from app.agents.graphs.sales_graph import initialize_database
@@ -57,6 +57,7 @@ app.add_middleware(
 # Routers
 app.include_router(chat_router, prefix=settings.api_v1_prefix)
 app.include_router(documents_router, prefix=settings.api_v1_prefix)
+app.include_router(images_router, prefix=settings.api_v1_prefix)
 
 
 @app.get("/")
