@@ -66,3 +66,41 @@ npm run dev
 - `oop-architect` — OOP 架构设计（含 Mermaid UML）
 - `web-designer` — 网页设计模式
 - `awesome-skills` — 精选技能合集
+
+## 开发路线图
+
+### ✅ 阶段零：基础设施 + C 端收尾（已完成）
+
+- [x] Dockerfile + docker-compose 编排（backend + PostgreSQL + Ollama）
+- [x] 数据层预留：`tenant_id` 字段、`industry/` 目录结构
+- [x] 合同模板（购车/订车/金融分期）— docx 生成
+- [x] 提案书模板 — 对话参数自动填充
+- [x] 车型图展示 — 问车型返回对应图片
+- [x] 前后端接口规范统一
+
+### 🚧 阶段一：核心功能补齐
+
+- [ ] 价格谈判 — intent 分支 + 话术模板（YAML 配置）
+- [ ] 投诉处理 — 分类识别 + 处理方案
+- [ ] 图片发送适配 — 前端轮播展示
+
+### ⏳ 阶段二：聚合聊天客户端
+
+- [ ] Hermes 企业 AI 助手（独立 Agent + RAG）
+- [ ] C 端多会话管理
+- [ ] 销售接管（AI ↔ 人工切换 + WebSocket）
+- [ ] 强意向弹窗 + 实时推送
+
+### ⏳ 阶段三：报表 & 数据
+
+- [ ] 财务报表（预定义模板 + AI 解读）
+- [ ] 售后预约统计 + 图表
+
+### ⏳ 阶段四：打磨 & 扩展
+
+- [ ] 防飞单（聊天日志监控）
+- [ ] 多租户行业切换（auto / medic / gaming）
+- [ ] 微信接入探索
+- [ ] 生产部署（域名 + SSL + 试点）
+
+> 📄 详细规划见 [docs/ROADMAP.md](./docs/ROADMAP.md)
