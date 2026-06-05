@@ -1,7 +1,5 @@
 # CRMBOT — 基于多Agent协作的智能销售机器人系统
 
-> 🏆 2026年桂林电子科技大学大学生创新大赛参赛项目
-
 [![Python](https://img.shields.io/badge/Python-3.10+-blue)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.109+-009688)](https://fastapi.tiangolo.com/)
 [![React](https://img.shields.io/badge/React-18-61DAFB)](https://react.dev/)
