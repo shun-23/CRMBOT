@@ -1,11 +1,5 @@
 # CRMBOT — 基于多Agent协作的智能销售机器人系统
 
-[![Python](https://img.shields.io/badge/Python-3.10+-blue)](https://python.org)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.109+-009688)](https://fastapi.tiangolo.com/)
-[![React](https://img.shields.io/badge/React-18-61DAFB)](https://react.dev/)
-[![LangGraph](https://img.shields.io/badge/LangGraph-0.0.40+-orange)](https://langchain-ai.github.io/langgraph/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791)](https://postgresql.org)
-
 ---
 
 ## 📖 项目简介
