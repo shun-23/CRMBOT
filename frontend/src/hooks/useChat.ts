@@ -4,7 +4,7 @@ import { useCallback, useRef } from 'react'
 import type { ChatMessage, DocumentInfo } from '@/types'
 
 export function useChat() {
-  const { messages, isLoading, sessionId, attachedDocs, addMessage, attachDocuments, setLoading } = useChatStore()
+  const { messages, isLoading, sessionId, attachedDocs, attachedImages, addMessage, attachDocuments, attachImages, setLoading } = useChatStore()
   const historyRef = useRef<{ role: string; content: string }[]>([])
 
   const sendMessage = useCallback(async (content: string) => {
@@ -38,7 +38,6 @@ export function useChat() {
 
       // Attach documents from response
       if (res.documents && res.documents.length > 0) {
-        // Map backend response documents to frontend DocumentInfo
         const docs: DocumentInfo[] = res.documents.map((d: any) => ({
           file_name: d.filename || d.file_name,
           file_path: d.path || d.file_path || `/api/v1/docs/documents/${encodeURIComponent(d.filename || d.file_name)}`,
@@ -46,6 +45,11 @@ export function useChat() {
           file_size: d.size || d.file_size || 0,
         }))
         attachDocuments(msgId, docs)
+      }
+
+      // Attach car model images from response
+      if (res.images && res.images.length > 0) {
+        attachImages(msgId, res.images)
       }
 
       historyRef.current = [
@@ -66,13 +70,14 @@ export function useChat() {
     } finally {
       setLoading(false)
     }
-  }, [isLoading, sessionId, addMessage, attachDocuments, setLoading])
+  }, [isLoading, sessionId, addMessage, attachDocuments, attachImages, setLoading])
 
   return {
     messages,
     isLoading,
     sessionId,
     attachedDocs,
+    attachedImages,
     sendMessage,
   }
 }

@@ -3,6 +3,7 @@ export interface ChatMessage {
   role: 'user' | 'assistant'
   content: string
   timestamp: number
+  images?: string[]
 }
 
 export interface ChatRequest {
@@ -24,6 +25,7 @@ export interface ChatResponse {
   reply: string
   intent: string
   documents: DocumentInfo[]
+  images: string[]
   suggested_actions: string[]
   metadata: Record<string, unknown>
   response_time_ms: number

@@ -6,8 +6,10 @@ interface ChatStore {
   isLoading: boolean
   sessionId: string
   attachedDocs: Record<string, DocumentInfo[]>
+  attachedImages: Record<string, string[]>
   addMessage: (msg: ChatMessage) => void
   attachDocuments: (messageId: string, docs: DocumentInfo[]) => void
+  attachImages: (messageId: string, images: string[]) => void
   setLoading: (loading: boolean) => void
   clearMessages: () => void
 }
@@ -30,6 +32,7 @@ export const useChatStore = create<ChatStore>((set) => ({
   isLoading: false,
   sessionId: getSessionId(),
   attachedDocs: {},
+  attachedImages: {},
 
   addMessage: (msg) =>
     set((state) => ({ messages: [...state.messages, msg] })),
@@ -39,9 +42,14 @@ export const useChatStore = create<ChatStore>((set) => ({
       attachedDocs: { ...state.attachedDocs, [messageId]: docs },
     })),
 
+  attachImages: (messageId, images) =>
+    set((state) => ({
+      attachedImages: { ...state.attachedImages, [messageId]: images },
+    })),
+
   setLoading: (loading) => set({ isLoading: loading }),
 
-  clearMessages: () => set({ messages: [], attachedDocs: {} }),
+  clearMessages: () => set({ messages: [], attachedDocs: {}, attachedImages: {} }),
 }))
 
 export { generateId }
