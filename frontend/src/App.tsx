@@ -1,13 +1,14 @@
-import { useEffect, useRef } from 'react'
-import { MessageCircle, Sparkles } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { MessageCircle, Sparkles, X } from 'lucide-react'
 import ChatBubble from './components/ChatBubble'
 import ChatInput from './components/ChatInput'
 import DownloadButton from './components/DownloadButton'
 import { useChat } from './hooks/useChat'
 
 export default function App() {
-  const { messages, isLoading, attachedDocs, sendMessage } = useChat()
+  const { messages, isLoading, attachedDocs, attachedImages, sendMessage } = useChat()
   const bottomRef = useRef<HTMLDivElement>(null)
+  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null)
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -68,6 +69,20 @@ export default function App() {
           messages.map((msg) => (
             <div key={msg.id}>
               <ChatBubble message={msg} />
+              {msg.role === 'assistant' && attachedImages[msg.id] && attachedImages[msg.id].length > 0 && (
+                <div className="flex gap-2 overflow-x-auto pl-2 mb-3">
+                  {attachedImages[msg.id].map((src, i) => (
+                    <img
+                      key={i}
+                      src={src}
+                      alt="车型图片"
+                      className="h-32 w-auto flex-shrink-0 rounded-lg object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                      loading="lazy"
+                      onClick={() => setLightboxSrc(src)}
+                    />
+                  ))}
+                </div>
+              )}
               {msg.role === 'assistant' && attachedDocs[msg.id] && attachedDocs[msg.id].length > 0 && (
                 <div className="flex flex-col gap-2 pl-2 mb-4">
                   {attachedDocs[msg.id].map((doc, i) => (
@@ -99,6 +114,26 @@ export default function App() {
 
       {/* Input */}
       <ChatInput onSend={handleSend} disabled={isLoading} />
+
+      {lightboxSrc && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
+          onClick={() => setLightboxSrc(null)}
+        >
+          <button
+            className="absolute top-4 right-4 text-white/80 hover:text-white"
+            onClick={() => setLightboxSrc(null)}
+          >
+            <X size={28} />
+          </button>
+          <img
+            src={lightboxSrc}
+            alt="车型大图"
+            className="max-h-[85vh] max-w-[90vw] rounded-lg object-contain"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
     </div>
   )
 }

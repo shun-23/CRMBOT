@@ -132,6 +132,10 @@ class ChatResponse(BaseModel):
         default_factory=list,
         description="本次对话生成的文档列表"
     )
+    images: List[str] = Field(
+        default_factory=list,
+        description="相关车型图片URL列表"
+    )
     suggested_actions: List[str] = Field(
         default_factory=list,
         description="建议的下一步操作"

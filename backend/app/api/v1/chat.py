@@ -5,6 +5,7 @@
 """
 
 import time
+from pathlib import Path
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status, Header
@@ -27,6 +28,67 @@ from app.models.chat import (
 logger = get_logger("api.chat")
 
 router = APIRouter()
+
+# 图片根目录
+IMAGES_ROOT = Path(__file__).resolve().parent.parent.parent.parent / "data" / "images"
+
+
+def _find_car_images(user_message: str, context: dict, intent) -> list[str]:
+    """根据用户消息和上下文匹配车型图片URL"""
+    # 触发图片的意图集合
+    image_intents = {
+        "product_inquiry", "price_negotiation", "general_chat",
+        "quote_generation", "contract_drafting", "proposal_creation",
+        "document_request", "service_appointment",
+        "analyze_car_image",
+    }
+    intent_val = getattr(intent, "value", str(intent)) if intent else ""
+    if intent_val not in image_intents:
+        return []
+
+    if not IMAGES_ROOT.is_dir():
+        return []
+
+    try:
+        model_dirs = [d.name for d in IMAGES_ROOT.iterdir() if d.is_dir()]
+    except OSError:
+        return []
+
+    matched = []
+    seen = set()
+
+    # 优先匹配 context 中的 car_model
+    car_model = ""
+    if isinstance(context, dict):
+        car_model = str(context.get("car_model", "")).strip()
+    if car_model:
+        for name in model_dirs:
+            if name in car_model or car_model in name:
+                if name not in seen:
+                    matched.append(f"/api/v1/images/{name}")
+                    seen.add(name)
+
+    if user_message:
+        # 1. 精确子串匹配（目录名完整出现在消息中）
+        for name in sorted(model_dirs, key=len, reverse=True):
+            if name in user_message and name not in seen:
+                matched.append(f"/api/v1/images/{name}")
+                seen.add(name)
+
+        # 2. 前缀匹配：消息中出现的词是某个目录名的开头
+        #    如 "RAV4" 匹配 "RAV4荣放"，"雷克萨斯" 匹配 "雷克萨斯ES"
+        for name in sorted(model_dirs, key=len, reverse=True):
+            if name in seen:
+                continue
+            # 从长到短尝试目录名的前缀
+            for cut in range(len(name) - 1, 1, -1):
+                prefix = name[:cut]
+                if prefix in user_message:
+                    matched.append(f"/api/v1/images/{name}")
+                    seen.add(name)
+                    break
+
+    return matched
 
 
 @router.post(
@@ -128,12 +190,20 @@ async def chat(
                 docs.append(d)
         
         logger.info(f"[Session: {actual_session_id}] 文档数: {len(docs)}")
-        
+
+        # 匹配车型图片
+        images = _find_car_images(
+            user_message=request.message,
+            context=final_state.get("context", {}),
+            intent=intent_value,
+        )
+
         response = ChatResponse(
             session_id=actual_session_id,
             reply=final_state.get("sales_response", "抱歉，我没有理解您的问题。"),
             intent=intent_value,
             documents=docs,
+            images=images,
             suggested_actions=final_state.get("suggested_actions", []),
             metadata={
                 "knowledge_results_count": len(final_state.get("knowledge_results", [])),
